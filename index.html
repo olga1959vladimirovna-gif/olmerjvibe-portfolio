@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OlMerjVibe — Vibe Coding & AI Agents</title>
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a12;
+      --bg2: #111120;
+      --accent: #818cf8;
+      --accent2: #67e8f9;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; line-height: 1.15; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    p  { color: var(--muted); }
+
+    /* ── LAYOUT ── */
+    section { position: relative; z-index: 1; padding: 100px 24px; }
+    .container { max-width: 960px; margin: 0 auto; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(10,10,18,0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--accent); letter-spacing: -0.5px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── LANG SWITCHER ── */
+    .lang-btn {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .lang-btn span { transition: opacity .2s; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding-top: 120px;
+    }
+    .hero-halo {
+      position: absolute;
+      top: 10%; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at 50% 40%, rgba(129,140,248,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 16px;
+      font-size: 0.85rem; color: var(--accent2);
+      margin-bottom: 28px;
+    }
+    .hero-badge::before { content: '✦'; font-size: 0.7rem; }
+    .hero-title { margin-bottom: 20px; }
+    .hero-title span { color: var(--accent); }
+    .hero-sub { font-size: 1.15rem; color: var(--muted); max-width: 560px; margin-bottom: 40px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #0a0a12;
+      border: none; border-radius: 10px;
+      padding: 14px 28px; font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; text-decoration: none;
+      transition: all .2s;
+      box-shadow: 0 0 24px rgba(129,140,248,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(129,140,248,0.55); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 28px; font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      display: inline-block;
+      color: var(--accent); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-title { margin-bottom: 16px; }
+    .section-sub { color: var(--muted); max-width: 560px; margin-bottom: 56px; }
+
+    /* ── PAIN BLOCK ── */
+    #pain { background: var(--bg2); }
+    .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 40px; }
+    .pain-card {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 24px;
+      transition: border-color .2s;
+    }
+    .pain-card:hover { border-color: rgba(129,140,248,0.3); }
+    .pain-icon { font-size: 1.8rem; margin-bottom: 14px; }
+    .pain-card h3 { font-size: 1rem; margin-bottom: 8px; color: var(--text); }
+    .pain-card p { font-size: 0.9rem; }
+
+    /* ── SERVICES ── */
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+    .service-card {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px 28px;
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .service-card::before {
+      content: ''; position: absolute;
+      top: -60px; right: -60px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(129,140,248,0.12) 0%, transparent 70%);
+      transition: transform .3s;
+    }
+    .service-card:hover { border-color: rgba(129,140,248,0.4); transform: translateY(-4px); }
+    .service-card:hover::before { transform: scale(1.4); }
+    .service-emoji { font-size: 2.4rem; margin-bottom: 20px; }
+    .service-card h3 { font-size: 1.15rem; margin-bottom: 12px; color: var(--text); }
+    .service-card p { font-size: 0.9rem; margin-bottom: 20px; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      background: rgba(129,140,248,0.1); color: var(--accent);
+      border: 1px solid rgba(129,140,248,0.2);
+      border-radius: 6px; padding: 3px 10px; font-size: 0.78rem; font-weight: 500;
+    }
+
+    /* ── PROJECTS ── */
+    #projects { background: var(--bg2); }
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .project-card {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      transition: all .3s;
+    }
+    .project-card:hover { border-color: rgba(103,232,249,0.3); transform: translateY(-4px); }
+    .project-thumb {
+      width: 100%; aspect-ratio: 16/9;
+      background: linear-gradient(135deg, rgba(129,140,248,0.15), rgba(103,232,249,0.1));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+    }
+    .project-body { padding: 24px; }
+    .project-body h3 { font-size: 1rem; margin-bottom: 8px; color: var(--text); }
+    .project-body p { font-size: 0.88rem; margin-bottom: 16px; }
+    .project-status {
+      display: inline-block;
+      background: rgba(103,232,249,0.1); color: var(--accent2);
+      border: 1px solid rgba(103,232,249,0.2);
+      border-radius: 6px; padding: 3px 10px; font-size: 0.75rem;
+    }
+
+    /* ── ABOUT ── */
+    .about-wrap { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; align-items: center; }
+    .about-photo {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(129,140,248,0.2), rgba(103,232,249,0.1));
+      border-radius: 24px; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+    }
+    .about-stats { display: flex; gap: 32px; margin-top: 32px; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--accent); display: block; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── PROCESS ── */
+    #process { background: var(--bg2); }
+    .process-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+    .step {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 24px;
+      position: relative;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.3);
+      color: var(--accent); font-weight: 700; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .step h3 { font-size: 1rem; margin-bottom: 8px; color: var(--text); }
+    .step p { font-size: 0.88rem; }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+    .faq-item {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .faq-q {
+      width: 100%; background: none; border: none;
+      color: var(--text); font-size: 0.95rem; font-weight: 600;
+      padding: 20px 24px; text-align: left; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: color .2s;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-arrow { font-size: 1.1rem; transition: transform .3s; }
+    .faq-item.open .faq-arrow { transform: rotate(45deg); }
+    .faq-a { display: none; padding: 0 24px 20px; color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ── CONTACT ── */
+    #contact {
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg) 0%, #0d0d1f 100%);
+    }
+    .contact-halo {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(103,232,249,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .contact-title { margin-bottom: 16px; }
+    .contact-sub { max-width: 500px; margin: 0 auto 40px; }
+    .contact-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+    .availability {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 20px; padding: 10px 20px; font-size: 0.88rem; color: var(--muted);
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74,222,128,0.8);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 0.85rem;
+    }
+    footer span { color: var(--accent); font-weight: 600; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 16px 20px; }
+      .nav-links a:not(.lang-btn) { display: none; }
+      .about-wrap { grid-template-columns: 1fr; }
+      .about-photo { max-width: 200px; margin: 0 auto; }
+    }
+
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">OlMerjVibe</div>
+    <div class="nav-links">
+      <a href="#services" data-ru="Услуги" data-en="Services">Услуги</a>
+      <a href="#projects" data-ru="Проекты" data-en="Projects">Проекты</a>
+      <a href="#about" data-ru="Обо мне" data-en="About">Обо мне</a>
+      <a href="#contact" data-ru="Контакт" data-en="Contact">Контакт</a>
+      <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-halo"></div>
+    <div class="container">
+      <div class="hero-badge" data-ru="Vibe Coding · AI Agents · MVP" data-en="Vibe Coding · AI Agents · MVP">
+        Vibe Coding · AI Agents · MVP
+      </div>
+      <h1 class="hero-title fade-in">
+        <span data-ru="Создаю цифровые" data-en="Building digital">Создаю цифровые</span><br>
+        <span data-ru="продукты через" data-en="products through">продукты через</span><br>
+        <span class="accent-word" data-ru="Vibe Coding" data-en="Vibe Coding">Vibe Coding</span>
+      </h1>
+      <p class="hero-sub fade-in" data-ru="Сайты, приложения и AI-агенты — быстро, современно и без лишней сложности. Для тех, кто хочет результат." data-en="Websites, apps and AI agents — fast, modern and without unnecessary complexity. For those who want results.">
+        Сайты, приложения и AI-агенты — быстро, современно и без лишней сложности. Для тех, кто хочет результат.
+      </p>
+      <div class="hero-actions fade-in">
+        <a href="#contact" class="btn-primary">
+          <span data-ru="Обсудить проект" data-en="Discuss a project">Обсудить проект</span> →
+        </a>
+        <a href="#projects" class="btn-ghost">
+          <span data-ru="Смотреть работы" data-en="View works">Смотреть работы</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN -->
+  <section id="pain">
+    <div class="container">
+      <div class="section-label" data-ru="Узнаёте себя?" data-en="Sound familiar?">Узнаёте себя?</div>
+      <h2 class="section-title fade-in" data-ru="Вы здесь, потому что..." data-en="You're here because...">Вы здесь, потому что...</h2>
+      <div class="pain-grid">
+        <div class="pain-card fade-in">
+          <div class="pain-icon">⚡</div>
+          <h3 data-ru="Нужен сайт — быстро" data-en="Need a site — fast">Нужен сайт — быстро</h3>
+          <p data-ru="Агентства берут дорого и долго. Хочется результат уже сейчас." data-en="Agencies are expensive and slow. You want results now.">Агентства берут дорого и долго. Хочется результат уже сейчас.</p>
+        </div>
+        <div class="pain-card fade-in">
+          <div class="pain-icon">🤖</div>
+          <h3 data-ru="Хотите AI, но не знаете с чего начать" data-en="Want AI but don't know where to start">Хотите AI, но не знаете с чего начать</h3>
+          <p data-ru="Слышали про AI-агентов, автоматизацию — но непонятно, как это применить к вашему делу." data-en="You've heard about AI agents and automation — but it's unclear how to apply it to your business.">Слышали про AI-агентов, автоматизацию — но непонятно, как это применить к вашему делу.</p>
+        </div>
+        <div class="pain-card fade-in">
+          <div class="pain-icon">🚀</div>
+          <h3 data-ru="Есть идея — нужен MVP" data-en="Have an idea — need an MVP">Есть идея — нужен MVP</h3>
+          <p data-ru="Хочется проверить идею без найма целой команды разработчиков." data-en="You want to test an idea without hiring a whole development team.">Хочется проверить идею без найма целой команды разработчиков.</p>
+        </div>
+        <div class="pain-card fade-in">
+          <div class="pain-icon">🔄</div>
+          <h3 data-ru="Рутина съедает время" data-en="Routine is eating your time">Рутина съедает время</h3>
+          <p data-ru="Повторяющиеся задачи, которые можно автоматизировать — но руки не доходят." data-en="Repetitive tasks that could be automated — but you haven't gotten around to it.">Повторяющиеся задачи, которые можно автоматизировать — но руки не доходят.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="container">
+      <div class="section-label" data-ru="Что я делаю" data-en="What I do">Что я делаю</div>
+      <h2 class="section-title fade-in" data-ru="Услуги" data-en="Services">Услуги</h2>
+      <p class="section-sub fade-in" data-ru="Три направления, которые я развиваю через vibe coding — подход к созданию цифровых продуктов с помощью AI." data-en="Three areas I develop through vibe coding — an approach to creating digital products using AI.">
+        Три направления, которые я развиваю через vibe coding — подход к созданию цифровых продуктов с помощью AI.
+      </p>
+      <div class="services-grid">
+        <div class="service-card fade-in">
+          <div class="service-emoji">🌐</div>
+          <h3 data-ru="Создание сайтов" data-en="Website Creation">Создание сайтов</h3>
+          <p data-ru="Лендинги, портфолио, корпоративные сайты — современный дизайн и быстрый результат через vibe coding." data-en="Landing pages, portfolios, corporate sites — modern design and fast results through vibe coding.">Лендинги, портфолио, корпоративные сайты — современный дизайн и быстрый результат через vibe coding.</p>
+          <div class="service-tags">
+            <span class="tag">HTML/CSS</span>
+            <span class="tag">Vibe Coding</span>
+            <span class="tag">Framer</span>
+          </div>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-emoji">📱</div>
+          <h3 data-ru="MVP-приложения" data-en="MVP Applications">MVP-приложения</h3>
+          <p data-ru="Минимально жизнеспособный продукт для проверки идеи. Быстро, без лишнего — чтобы понять работает ли концепция." data-en="Minimum viable product to test your idea. Fast, without extras — to understand if the concept works.">Минимально жизнеспособный продукт для проверки идеи. Быстро, без лишнего — чтобы понять работает ли концепция.</p>
+          <div class="service-tags">
+            <span class="tag">MVP</span>
+            <span class="tag">No-code</span>
+            <span class="tag">Прототип</span>
+          </div>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-emoji">🤖</div>
+          <h3 data-ru="AI-агенты и автоматизация" data-en="AI Agents & Automation">AI-агенты и автоматизация</h3>
+          <p data-ru="Создание AI-агентов для автоматизации задач, обработки данных и повышения продуктивности вашего бизнеса." data-en="Creating AI agents to automate tasks, process data and improve your business productivity.">Создание AI-агентов для автоматизации задач, обработки данных и повышения продуктивности вашего бизнеса.</p>
+          <div class="service-tags">
+            <span class="tag">AI Agents</span>
+            <span class="tag">Автоматизация</span>
+            <span class="tag">n8n / Make</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="container">
+      <div class="section-label" data-ru="Мои работы" data-en="My Works">Мои работы</div>
+      <h2 class="section-title fade-in" data-ru="Проекты" data-en="Projects">Проекты</h2>
+      <p class="section-sub fade-in" data-ru="Портфолио растёт вместе со мной. Здесь появляются работы по мере их создания." data-en="Portfolio grows with me. Works appear here as they are created.">
+        Портфолио растёт вместе со мной. Здесь появляются работы по мере их создания.
+      </p>
+      <div class="projects-grid">
+        <!-- ПРОЕКТ 1 — ProfitScan-AI -->
+        <div class="project-card fade-in">
+          <div class="project-thumb">🚚</div>
+          <div class="project-body">
+            <h3 data-ru="ProfitScan-AI" data-en="ProfitScan-AI">ProfitScan-AI</h3>
+            <p data-ru="Калькулятор маржинальности грузовых перевозок для автопарка. Использует Google Gemini AI для анализа прибыльности." data-en="Profitability calculator for freight transportation fleet. Uses Google Gemini AI to analyze margins.">Калькулятор маржинальности грузовых перевозок для автопарка. Использует Google Gemini AI для анализа прибыльности.</p>
+            <div class="service-tags" style="margin-bottom:16px">
+              <span class="tag">TypeScript</span>
+              <span class="tag">Vite</span>
+              <span class="tag">Gemini AI</span>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <a href="https://gregarious-alfajores-2f7f30.netlify.app" target="_blank" class="btn-primary" style="padding:8px 16px;font-size:0.82rem">
+                <span data-ru="Открыть" data-en="Open">Открыть</span> ↗
+              </a>
+              <a href="https://github.com/olga1959vladimirovna-gif/ProfitScan-AI" target="_blank" class="btn-ghost" style="padding:8px 16px;font-size:0.82rem">
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- ПРОЕКТ 2 — Bulgarian Orthodox Church -->
+        <div class="project-card fade-in">
+          <div class="project-thumb">⛪</div>
+          <div class="project-body">
+            <h3 data-ru="Ела у дома" data-en="Come Home">Ела у дома</h3>
+            <p data-ru="Лендинг для Българската православна църковна общност в Берген, Норвегия. Реальный клиентский проект." data-en="Landing page for the Bulgarian Orthodox Church community in Bergen, Norway. A real client project.">Лендинг для Българската православна църковна общност в Берген, Норвегия. Реальный клиентский проект.</p>
+            <div class="service-tags" style="margin-bottom:16px">
+              <span class="tag">HTML</span>
+              <span class="tag">CSS</span>
+              <span class="tag">Лендинг</span>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <a href="https://bulgarian-orthodox-church-community.netlify.app" target="_blank" class="btn-primary" style="padding:8px 16px;font-size:0.82rem">
+                <span data-ru="Открыть" data-en="Open">Открыть</span> ↗
+              </a>
+              <a href="https://github.com/olga1959vladimirovna-gif/---.-.-Bulgarian-Orthodox-Church-Community-of-St.-Ivan-Rilski" target="_blank" class="btn-ghost" style="padding:8px 16px;font-size:0.82rem">
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- ПРОЕКТ 3 — PLACEHOLDER -->
+        <div class="project-card fade-in">
+          <div class="project-thumb">📱</div>
+          <div class="project-body">
+            <h3 data-ru="MVP-приложение — скоро" data-en="MVP App — coming soon">MVP-приложение — скоро</h3>
+            <p data-ru="Первый MVP на подходе. Здесь появится ссылка и описание." data-en="First MVP is coming. A link and description will appear here.">Первый MVP на подходе. Здесь появится ссылка и описание.</p>
+            <span class="project-status" data-ru="Готовится" data-en="Preparing">Готовится</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="about-wrap">
+        <div class="about-photo fade-in">👩‍💻</div>
+        <div>
+          <div class="section-label" data-ru="Обо мне" data-en="About me">Обо мне</div>
+          <h2 class="section-title fade-in" data-ru="Привет, я Ольга" data-en="Hi, I'm Olga">Привет, я Ольга</h2>
+          <p class="fade-in" style="margin-bottom:16px" data-ru="Я изучаю vibe coding — подход к созданию цифровых продуктов, где AI-инструменты ускоряют разработку в разы. Моя цель — помогать людям и бизнесу воплощать цифровые идеи быстро и без лишних затрат." data-en="I study vibe coding — an approach to creating digital products where AI tools accelerate development many times over. My goal is to help people and businesses realize digital ideas quickly and without unnecessary costs.">
+            Я изучаю vibe coding — подход к созданию цифровых продуктов, где AI-инструменты ускоряют разработку в разы. Моя цель — помогать людям и бизнесу воплощать цифровые идеи быстро и без лишних затрат.
+          </p>
+          <p class="fade-in" data-ru="Работаю на стыке дизайна, технологий и AI. Постоянно учусь и делюсь тем, что узнаю." data-en="I work at the intersection of design, technology and AI. Constantly learning and sharing what I discover.">
+            Работаю на стыке дизайна, технологий и AI. Постоянно учусь и делюсь тем, что узнаю.
+          </p>
+          <div class="about-stats">
+            <div class="stat">
+              <span class="stat-num">3</span>
+              <span class="stat-label" data-ru="направления" data-en="directions">направления</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">∞</span>
+              <span class="stat-label" data-ru="желание учиться" data-en="desire to learn">желание учиться</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">1</span>
+              <span class="stat-label" data-ru="цель — ваш результат" data-en="goal — your result">цель — ваш результат</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="container">
+      <div class="section-label" data-ru="Как я работаю" data-en="How I work">Как я работаю</div>
+      <h2 class="section-title fade-in" data-ru="Процесс" data-en="Process">Процесс</h2>
+      <div class="process-steps">
+        <div class="step fade-in">
+          <div class="step-num">1</div>
+          <h3 data-ru="Знакомство" data-en="Discovery">Знакомство</h3>
+          <p data-ru="Бесплатный звонок 30 минут — обсуждаем вашу задачу, цели и ожидания." data-en="Free 30-minute call — we discuss your task, goals and expectations.">Бесплатный звонок 30 минут — обсуждаем вашу задачу, цели и ожидания.</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-num">2</div>
+          <h3 data-ru="Предложение" data-en="Proposal">Предложение</h3>
+          <p data-ru="В течение 48 часов отправляю план проекта с описанием, сроками и стоимостью." data-en="Within 48 hours I send a project plan with description, timeline and cost.">В течение 48 часов отправляю план проекта с описанием, сроками и стоимостью.</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-num">3</div>
+          <h3 data-ru="Создание" data-en="Creation">Создание</h3>
+          <p data-ru="Работаю итерациями с регулярными демо. Вы видите прогресс на каждом этапе." data-en="Working in iterations with regular demos. You see progress at every stage.">Работаю итерациями с регулярными демо. Вы видите прогресс на каждом этапе.</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-num">4</div>
+          <h3 data-ru="Сдача" data-en="Delivery">Сдача</h3>
+          <p data-ru="Передаю готовый результат с документацией и обучением по использованию." data-en="I hand over the finished result with documentation and usage training.">Передаю готовый результат с документацией и обучением по использованию.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-label" data-ru="Вопросы и ответы" data-en="Q&A">Вопросы и ответы</div>
+      <h2 class="section-title fade-in">FAQ</h2>
+      <div class="faq-list">
+        <div class="faq-item fade-in">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-ru="Что такое vibe coding?" data-en="What is vibe coding?">Что такое vibe coding?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a" data-ru="Vibe coding — это подход к созданию цифровых продуктов с помощью AI-инструментов. Вместо написания кода вручную, я использую AI для генерации и итерации, что позволяет создавать продукты быстрее и дешевле." data-en="Vibe coding is an approach to creating digital products using AI tools. Instead of writing code by hand, I use AI to generate and iterate, allowing products to be created faster and cheaper.">
+            Vibe coding — это подход к созданию цифровых продуктов с помощью AI-инструментов. Вместо написания кода вручную, я использую AI для генерации и итерации, что позволяет создавать продукты быстрее и дешевле.
+          </div>
+        </div>
+        <div class="faq-item fade-in">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-ru="Сколько стоит проект?" data-en="How much does a project cost?">Сколько стоит проект?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a" data-ru="Стоимость зависит от сложности проекта. После нашего первого звонка я отправлю конкретное предложение. Напишите мне — обсудим." data-en="The cost depends on the complexity of the project. After our first call I'll send a specific proposal. Write to me — let's discuss.">
+            Стоимость зависит от сложности проекта. После нашего первого звонка я отправлю конкретное предложение. Напишите мне — обсудим.
+          </div>
+        </div>
+        <div class="faq-item fade-in">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-ru="Как быстро вы делаете сайт?" data-en="How fast do you make a website?">Как быстро вы делаете сайт?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a" data-ru="Простой лендинг — от 3 до 7 дней. MVP-приложение или AI-агент — от 1 до 4 недель. Точные сроки обсуждаем на первом звонке." data-en="A simple landing page — 3 to 7 days. MVP app or AI agent — 1 to 4 weeks. Exact timing is discussed on the first call.">
+            Простой лендинг — от 3 до 7 дней. MVP-приложение или AI-агент — от 1 до 4 недель. Точные сроки обсуждаем на первом звонке.
+          </div>
+        </div>
+        <div class="faq-item fade-in">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-ru="Я не технический человек. Мне подойдёт?" data-en="I'm not technical. Is this for me?">Я не технический человек. Мне подойдёт?</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-a" data-ru="Абсолютно! Я объясняю всё простым языком и беру на себя всю техническую часть. Ваша задача — знать, что вы хотите получить." data-en="Absolutely! I explain everything in plain language and take care of all the technical part. Your job is to know what you want to get.">
+            Абсолютно! Я объясняю всё простым языком и беру на себя всю техническую часть. Ваша задача — знать, что вы хотите получить.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-halo"></div>
+    <div class="container">
+      <div class="section-label" data-ru="Начнём?" data-en="Let's start?">Начнём?</div>
+      <h2 class="contact-title section-title fade-in" data-ru="Готовы воплотить вашу идею?" data-en="Ready to bring your idea to life?">Готовы воплотить вашу идею?</h2>
+      <p class="contact-sub fade-in" data-ru="Напишите мне — обсудим ваш проект на бесплатном 30-минутном звонке." data-en="Write to me — let's discuss your project on a free 30-minute call.">
+        Напишите мне — обсудим ваш проект на бесплатном 30-минутном звонке.
+      </p>
+      <div class="contact-actions fade-in">
+        <a href="mailto:hello@olmerjvibe.com" class="btn-primary">
+          <span data-ru="Написать письмо" data-en="Send an email">Написать письмо</span> ✉️
+        </a>
+        <a href="https://t.me/olmerjvibe" class="btn-ghost">
+          <span data-ru="Telegram" data-en="Telegram">Telegram</span> →
+        </a>
+      </div>
+      <div class="availability fade-in">
+        <span class="dot"></span>
+        <span data-ru="Открыта для новых проектов" data-en="Open for new projects">Открыта для новых проектов</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 <span>OlMerjVibe</span> · Ольга Мерджанова · <span data-ru="Сделано с помощью vibe coding" data-en="Made with vibe coding">Сделано с помощью vibe coding</span> ✦</p>
+  </footer>
+
+  <script>
+    // ── LANG SWITCHER ──
+    let lang = 'ru';
+    function toggleLang() {
+      lang = lang === 'ru' ? 'en' : 'ru';
+      document.getElementById('langBtn').textContent = lang === 'ru' ? 'EN' : 'RU';
+      document.querySelectorAll('[data-ru]').forEach(el => {
+        el.textContent = el.dataset[lang] || el.textContent;
+      });
+      document.documentElement.lang = lang;
+    }
+
+    // ── FAQ TOGGLE ──
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      item.classList.toggle('open');
+    }
+
+    // ── SCROLL ANIMATIONS ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
